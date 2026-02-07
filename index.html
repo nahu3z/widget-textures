@@ -11,7 +11,7 @@
             background-color: transparent;
         }
 
-        .atlas-container {
+        #atlas {
             display: flex;
             flex-direction: row;
             height: 100vh;
@@ -22,30 +22,53 @@
             height: 100vh;
             width: auto;
             display: block;
-            object-fit: cover;
         }
     </style>
 </head>
 <body>
-    <div id="atlas" class="atlas-container"></div>
+    <div id="atlas"></div>
 
     <script>
-        const config = {
-            urls: [
-                "c.tenor.com/GGYUbfu2z6EAAAAd/tenor.gif",
-                "c.tenor.com/ydOoexjrAB8AAAAC/tenor.gif",
-                "c.tenor.com/GpAElSpMQXUAAAAC/tenor.gif"
-            ],
-            maxHeight: 720
-        };
+        function addGif(url, id, targetHeight) {
+            const h = Math.min(targetHeight || window.innerHeight, 720);
+            const img = document.createElement('img');
 
-        const h = Math.min(window.innerHeight, config.maxHeight);
-        const container = document.getElementById('atlas');
+            const cleanUrl = encodeURIComponent(url);
+            img.src = `https://wsrv.nl/?url=${cleanUrl}&h=${h}&output=webp&n=-1`;
+            img.id = "gif-" + id;
 
-        container.innerHTML = config.urls.map(url => {
-            const wsrvUrl = `https://wsrv.nl/?url=${encodeURIComponent(url)}&h=${h}&output=webp&n=-1`;
-            return `<img src="${wsrvUrl}">`;
-        }).join('');
+            img.onload = () => {
+                document.getElementById('atlas').appendChild(img);
+                renderAtlas(id, h);
+            };
+        }
+
+        function removeGif(id, targetHeight) {
+            const img = document.getElementById("gif-" + id);
+            if (img) { 
+                img.remove(); 
+                renderAtlas(null, targetHeight); 
+            }
+        }
+
+        function renderAtlas(targetId, currentHeight) {
+            const images = document.querySelectorAll('#atlas img');
+            let currentX = 0;
+            let fullMap = {};
+
+            images.forEach((img) => {
+                const id = img.id.replace("gif-", "");
+                fullMap[id] = { 
+                    startX: currentX, 
+                    width: img.clientWidth 
+                };
+                currentX += img.clientWidth;
+            });
+
+            if (window.mta) {
+                mta.triggerEvent("onAtlasUpdate", currentX, currentHeight, JSON.stringify(fullMap), targetId);
+            }
+        }
     </script>
 </body>
 </html>
