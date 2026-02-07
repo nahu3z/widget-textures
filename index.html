@@ -3,22 +3,34 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-    body, html {
-        margin: 0;
-        padding: 0;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-        background-color: transparent;
-    }
-    img {
-        height: 100vh;
-        width: auto;
-        display: block;
-    }
-</style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow-x: auto;
+            overflow-y: hidden;
+            background-color: transparent;
+        }
+
+        .atlas-container {
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
+            width: max-content;
+        }
+
+        img {
+            height: 100vh;
+            width: auto;
+            display: block;
+        }
+    </style>
 </head>
 <body>
-    <img src="https://wsrv.nl/?url=c.tenor.com/GGYUbfu2z6EAAAAd/tenor.gif&h=720&output=webp&n=-1">
+    <div class="atlas-container">
+        <img src="https://wsrv.nl/?url=c.tenor.com/GGYUbfu2z6EAAAAd/tenor.gif&h=720&output=webp&n=-1">
+        <img src="https://wsrv.nl/?url=c.tenor.com/GGYUbfu2z6EAAAAd/tenor.gif&h=720&output=webp&n=-1">
+        <img src="https://wsrv.nl/?url=c.tenor.com/GGYUbfu2z6EAAAAd/tenor.gif&h=720&output=webp&n=-1">
+    </div>
 </body>
 </html>
