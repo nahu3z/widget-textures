@@ -11,12 +11,6 @@
             background-color: transparent;
         }
 
-        ::-webkit-scrollbar {
-            display: none;
-            width: 0;
-            height: 0;
-        }
-
         .atlas-container {
             display: flex;
             flex-direction: row;
@@ -32,10 +26,20 @@
     </style>
 </head>
 <body>
-    <div class="atlas-container">
-        <img src="https://wsrv.nl/?url=c.tenor.com/GGYUbfu2z6EAAAAd/tenor.gif&h=720&output=webp&n=-1">
-        <img src="https://wsrv.nl/?url=c.tenor.com/GGYUbfu2z6EAAAAd/tenor.gif&h=720&output=webp&n=-1">
-        <img src="https://wsrv.nl/?url=c.tenor.com/GGYUbfu2z6EAAAAd/tenor.gif&h=720&output=webp&n=-1">
-    </div>
+    <div id="atlas" class="atlas-container"></div>
+
+    <script>
+        const config = {
+            url: "c.tenor.com/GGYUbfu2z6EAAAAd/tenor.gif",
+            loop: 3,
+            maxHeight: 720
+        };
+
+        const h = Math.min(window.innerHeight, config.maxHeight);
+        const wsrvUrl = `https://wsrv.nl/?url=${config.url}&h=${h}&output=webp&n=-1`;
+
+        const container = document.getElementById('atlas');
+        container.innerHTML = `<img src="${wsrvUrl}">`.repeat(config.loop);
+    </script>
 </body>
 </html>
