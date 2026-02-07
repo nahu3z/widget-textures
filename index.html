@@ -30,16 +30,21 @@
 
     <script>
         const config = {
-            url: "c.tenor.com/GGYUbfu2z6EAAAAd/tenor.gif",
-            loop: 3,
+            urls: [
+                "c.tenor.com/GGYUbfu2z6EAAAAd/tenor.gif",
+                "c.tenor.com/CHGVzKTotgwAAAAC/tenor.gif",
+                "c.tenor.com/7fDxJIR1pSEAAAAC/tenor.gif"
+            ],
             maxHeight: 720
         };
 
         const h = Math.min(window.innerHeight, config.maxHeight);
-        const wsrvUrl = `https://wsrv.nl/?url=${config.url}&h=${h}&output=webp&n=-1`;
-
         const container = document.getElementById('atlas');
-        container.innerHTML = `<img src="${wsrvUrl}">`.repeat(config.loop);
+
+        container.innerHTML = config.urls.map(url => {
+            const wsrvUrl = `https://wsrv.nl/?url=${encodeURIComponent(url)}&h=${h}&output=webp&n=-1`;
+            return `<img src="${wsrvUrl}">`;
+        }).join('');
     </script>
 </body>
 </html>
