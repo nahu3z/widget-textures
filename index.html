@@ -29,45 +29,44 @@
     <div id="atlas"></div>
 
     <script>
-        function addGif(url, id, targetHeight) {
-            const h = Math.min(targetHeight || window.innerHeight, 720);
+        const container = document.getElementById('atlas');
+        const h = Math.min(window.innerHeight, 720);
+
+        window.addEventListener("hashchange", () => {
+            const data = location.hash.substring(1).split(',');
+            const action = data[0];
+
+            if (action === "add") {
+                const [_, url, id] = data;
+                addGif(decodeURIComponent(url), id);
+            } else if (action === "remove") {
+                const [_, id] = data;
+                const img = document.getElementById("gif-" + id);
+                if (img) { img.remove(); renderAtlas(null); }
+            }
+            location.hash = "";
+        });
+
+        function addGif(url, id) {
             const img = document.createElement('img');
-
-            const cleanUrl = encodeURIComponent(url);
-            img.src = `https://wsrv.nl/?url=${cleanUrl}&h=${h}&output=webp&n=-1`;
+            img.src = `https://wsrv.nl/?url=${encodeURIComponent(url)}&h=${h}&output=webp&n=-1`;
             img.id = "gif-" + id;
-
             img.onload = () => {
-                document.getElementById('atlas').appendChild(img);
-                renderAtlas(id, h);
+                container.appendChild(img);
+                renderAtlas(id);
             };
         }
 
-        function removeGif(id, targetHeight) {
-            const img = document.getElementById("gif-" + id);
-            if (img) { 
-                img.remove(); 
-                renderAtlas(null, targetHeight); 
-            }
-        }
-
-        function renderAtlas(targetId, currentHeight) {
-            const images = document.querySelectorAll('#atlas img');
+        function renderAtlas(targetId) {
+            const images = container.querySelectorAll('img');
             let currentX = 0;
             let fullMap = {};
-
             images.forEach((img) => {
                 const id = img.id.replace("gif-", "");
-                fullMap[id] = { 
-                    startX: currentX, 
-                    width: img.clientWidth 
-                };
+                fullMap[id] = { startX: currentX, width: img.clientWidth };
                 currentX += img.clientWidth;
             });
-
-            if (window.mta) {
-                mta.triggerEvent("onAtlasUpdate", currentX, currentHeight, JSON.stringify(fullMap), targetId);
-            }
+            if (window.mta) mta.triggerEvent("onAtlasUpdate", currentX, h, JSON.stringify(fullMap), targetId);
         }
     </script>
 </body>
