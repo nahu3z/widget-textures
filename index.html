@@ -1,82 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body, html { margin: 0; padding: 0; overflow: hidden; background: transparent; }
-        
-        #atlas { 
-            display: flex; 
-            flex-direction: row; 
-            height: 100vh; 
-            width: max-content; 
-        }
-        
-        .gif-container {
-            position: relative;
+        body, html {
+            margin: 0;
+            padding: 0;
             height: 100vh;
-            display: flex;
-        }
-
-        .pixel-marker {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 1px;
-            height: 1px;
-            z-index: 10;
+            overflow: hidden;
             background-color: transparent;
         }
 
-        img { 
+        .atlas-container {
+            display: flex;
+            flex-direction: row;
             height: 100vh;
-            width: auto; 
-            display: block; 
+            width: max-content;
+        }
+
+        img {
+            height: 100vh;
+            width: auto;
+            display: block;
+            object-fit: cover;
         }
     </style>
 </head>
 <body>
-    <div id="atlas"></div>
+    <div id="atlas" class="atlas-container"></div>
+
     <script>
+        const config = {
+            urls: [
+                "c.tenor.com/GGYUbfu2z6EAAAAd/tenor.gif",
+                "c.tenor.com/ydOoexjrAB8AAAAC/tenor.gif",
+                "c.tenor.com/GpAElSpMQXUAAAAC/tenor.gif"
+            ],
+            maxHeight: 720
+        };
+
+        const h = Math.min(window.innerHeight, config.maxHeight);
         const container = document.getElementById('atlas');
 
-        window.addEventListener("hashchange", () => {
-            const data = location.hash.substring(1).split(',');
-            if (data[0] === "add") {
-                addGif(decodeURIComponent(data[1]), data[2]);
-            } else if (data[0] === "remove") {
-                const el = document.getElementById("cont-" + data[1]);
-                if (el) el.remove();
-            }
-            location.hash = "";
-        });
-
-        function addGif(url, id) {
-            const wrapper = document.createElement('div');
-            wrapper.className = "gif-container";
-            wrapper.id = "cont-" + id;
-
-            const pixel = document.createElement('div');
-            pixel.className = "pixel-marker";
-
-            const img = document.createElement('img');
-            const renderH = window.innerHeight;
-            img.src = `https://wsrv.nl/?url=${encodeURIComponent(url)}&h=${renderH}&output=webp&n=-1`;
-            
-            img.onload = () => {
-                const width = img.clientWidth;
-                const numericId = parseInt(id) % 256;
-
-                const r = width % 256;
-                const g = Math.floor(width / 256);
-                const b = numericId;
-
-                pixel.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-                
-                wrapper.appendChild(pixel);
-                wrapper.appendChild(img);
-                container.appendChild(wrapper);
-            };
-        }
+        container.innerHTML = config.urls.map(url => {
+            const wsrvUrl = `https://wsrv.nl/?url=${encodeURIComponent(url)}&h=${h}&output=webp&n=-1`;
+            return `<img src="${wsrvUrl}">`;
+        }).join('');
     </script>
 </body>
 </html>
