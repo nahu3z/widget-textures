@@ -1,80 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
+        body, html { margin: 0; padding: 0; overflow: hidden; background: transparent; }
+        
+        #atlas { 
+            display: flex; 
+            flex-direction: row; 
+            height: 100vh; 
+            width: max-content; 
+        }
+        
+        .gif-container {
+            position: relative;
             height: 100vh;
-            overflow: hidden;
+            display: flex;
+        }
+
+        .pixel-marker {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1px;
+            height: 1px;
+            z-index: 10;
             background-color: transparent;
         }
 
-        #atlas {
-            display: flex;
-            flex-direction: row;
+        img { 
             height: 100vh;
-            width: max-content;
-        }
-
-        img {
-            height: 100vh;
-            width: auto;
-            display: block;
+            width: auto; 
+            display: block; 
         }
     </style>
 </head>
 <body>
     <div id="atlas"></div>
-
     <script>
         const container = document.getElementById('atlas');
-        const h = Math.min(window.innerHeight, 720);
 
         window.addEventListener("hashchange", () => {
             const data = location.hash.substring(1).split(',');
-            const action = data[0];
-
-            if (action === "add") {
-                const [_, url, id] = data;
-                addGif(decodeURIComponent(url), id);
-            } else if (action === "remove") {
-                const [_, id] = data;
-                const img = document.getElementById("gif-" + id);
-                if (img) { img.remove(); renderAtlas(null); }
+            if (data[0] === "add") {
+                addGif(decodeURIComponent(data[1]), data[2]);
+            } else if (data[0] === "remove") {
+                const el = document.getElementById("cont-" + data[1]);
+                if (el) el.remove();
             }
             location.hash = "";
         });
 
         function addGif(url, id) {
-            const img = document.createElement('img');
-            img.src = `https://wsrv.nl/?url=${encodeURIComponent(url)}&h=${h}&output=webp&n=-1`;
-            img.id = "gif-" + id;
-            img.onload = () => {
-                container.appendChild(img);
-                renderAtlas(id);
-            };
-        }
+            const wrapper = document.createElement('div');
+            wrapper.className = "gif-container";
+            wrapper.id = "cont-" + id;
 
-        function renderAtlas(targetId) {
-            const images = container.querySelectorAll('img');
-            let currentX = 0;
-            let fullMap = {};
-            images.forEach((img) => {
-                const id = img.id.replace("gif-", "");
-                fullMap[id] = { startX: currentX, width: img.clientWidth };
-                currentX += img.clientWidth;
-            });
-            const trySend = () => {
-                if (window.mta) {
-                    mta.triggerEvent("onAtlasUpdate", currentX, h, JSON.stringify(fullMap), targetId);
-                } else {
-                    // Si no existe aún, reintentar en 50ms
-                    setTimeout(trySend, 50);
-                }
+            const pixel = document.createElement('div');
+            pixel.className = "pixel-marker";
+
+            const img = document.createElement('img');
+            const renderH = window.innerHeight;
+            img.src = `https://wsrv.nl/?url=${encodeURIComponent(url)}&h=${renderH}&output=webp&n=-1`;
+            
+            img.onload = () => {
+                const width = img.clientWidth;
+                const numericId = parseInt(id) % 256;
+
+                const r = width % 256;
+                const g = Math.floor(width / 256);
+                const b = numericId;
+
+                pixel.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                
+                wrapper.appendChild(pixel);
+                wrapper.appendChild(img);
+                container.appendChild(wrapper);
             };
-            trySend();
         }
     </script>
 </body>
