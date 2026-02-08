@@ -1,17 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            overflow: hidden;
-            background-color: transparent;
-        }
+        body, html { margin: 0; padding: 0; overflow: hidden; background: transparent; }
 
-        .atlas-container {
+        #atlas {
             display: flex;
             flex-direction: row;
             height: 100vh;
@@ -22,30 +15,46 @@
             height: 100vh;
             width: auto;
             display: block;
-            object-fit: cover;
         }
     </style>
 </head>
 <body>
-    <div id="atlas" class="atlas-container"></div>
-
+    <div id="atlas"></div>
     <script>
-        const config = {
-            urls: [
-                "c.tenor.com/GGYUbfu2z6EAAAAd/tenor.gif",
-                "c.tenor.com/ydOoexjrAB8AAAAC/tenor.gif",
-                "c.tenor.com/GpAElSpMQXUAAAAC/tenor.gif"
-            ],
-            maxHeight: 720
-        };
-
-        const h = Math.min(window.innerHeight, config.maxHeight);
         const container = document.getElementById('atlas');
 
-        container.innerHTML = config.urls.map(url => {
-            const wsrvUrl = `https://wsrv.nl/?url=${encodeURIComponent(url)}&h=${h}&output=webp&n=-1`;
-            return `<img src="${wsrvUrl}">`;
-        }).join('');
+        window.addEventListener("hashchange", () => {
+            const hash = location.hash.substring(1);
+            if (!hash) return;
+
+            const data = hash.split(',');
+            if (data[0] === "add") {
+                // data[1]: URL, data[2]: ID
+                addGif(decodeURIComponent(data[1]), data[2]);
+            } else if (data[0] === "remove") {
+                const el = document.getElementById("cont-" + data[1]);
+                if (el) el.remove();
+            }
+            location.hash = "";
+        });
+
+        function addGif(url, id) {
+            const wrapper = document.createElement('div');
+            wrapper.id = "cont-" + id;
+            container.appendChild(wrapper);
+
+            const img = document.createElement('img');
+            const renderH = window.innerHeight;
+            img.src = `https://wsrv.nl/?url=${encodeURIComponent(url)}&h=${renderH}&n=-1`;
+
+            img.onload = () => {
+                wrapper.appendChild(img);
+            };
+
+            img.onerror = () => {
+                wrapper.remove();
+            };
+        }
     </script>
 </body>
 </html>
